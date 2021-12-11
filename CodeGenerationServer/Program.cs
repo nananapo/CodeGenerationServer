@@ -15,6 +15,9 @@ internal static class Program
         File.WriteAllText("sample_gen.json", JsonSerializer.Serialize(Sample.GeneratorSetting));
         File.WriteAllText("sample_top.json", JsonSerializer.Serialize(Sample.GraphTopologySetting));
         Environment.Exit(0);
+
+        GraphConnectEngine.Logger.SetLogMethod(s=>System.Console.WriteLine(s));
+        GraphConnectEngine.Logger.LogLevel = GraphConnectEngine.Logger.LevelDebug;
         */
 
         Console.WriteLine("Starting server...");

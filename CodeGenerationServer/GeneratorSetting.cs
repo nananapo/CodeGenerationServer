@@ -176,7 +176,7 @@ class GeneratorSetting
         }
 
         var gen = Graphs[setting.Type];
-        return new AutoGraph(setting.Type,id,gen.InItem,gen.OutItem,gen.OutProcessNodeCount,setting.Args.Keys.ToArray());
+        return new AutoGraph(setting.Type,id,gen.InItem,gen.OutItem,gen.OutProcessNodeCount,setting.Args.Values.ToArray());
     }
 
 }

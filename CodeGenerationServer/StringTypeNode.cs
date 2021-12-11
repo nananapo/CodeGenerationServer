@@ -11,15 +11,17 @@ public class StringTypeNode : Node
 
     public readonly IList<string> InItemTypes;
 
-    public StringTypeNode(string name, string outItemType)
+    public StringTypeNode(IGraph graph,string name, string outItemType)
     {
+        Graph = graph;
         Name = name;
         IsInNode = false;
         OutItemType = outItemType;
     }
 
-    public StringTypeNode(string name, IList<string> inItemTypes)
+    public StringTypeNode(IGraph graph, string name, IList<string> inItemTypes)
     {
+        Graph = graph;
         Name = name;
         IsInNode = true;
         InItemTypes = inItemTypes;
@@ -44,5 +46,10 @@ public class StringTypeNode : Node
             }
         }
         return false;
+    }
+
+    public override string ToString()
+    {
+        return $"StringTypeNode<{IsInNode}> {(IsInNode ? InItemTypes.Join(",") : OutItemType)}";
     }
 }

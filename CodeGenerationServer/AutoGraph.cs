@@ -46,7 +46,7 @@ public class AutoGraph : IGraph
             foreach (var (name,item) in inItemTypes)
             {
                 var types = item.Split("|");
-                InStringTypeNodes.Add((name,new StringTypeNode(name,types)));
+                InStringTypeNodes.Add((name,new StringTypeNode(this,name,types)));
             }
         }
 
@@ -55,7 +55,7 @@ public class AutoGraph : IGraph
         {
             foreach (var (name, item) in outItemTypes)
             {
-                OutStringTypeNodes.Add((name, new StringTypeNode(name,item)));
+                OutStringTypeNodes.Add((name, new StringTypeNode(this,name,item)));
             }
         }
 
@@ -80,5 +80,10 @@ public class AutoGraph : IGraph
     public Task<ProcessCallResult> OnProcessCall(ProcessData args, object[] parameters)
     {
         throw new NotImplementedException();
+    }
+
+    public override string ToString()
+    {
+        return $"AutoGraph<{Id}> name<{GraphName}>";
     }
 }

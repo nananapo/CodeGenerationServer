@@ -1,0 +1,40 @@
+swagger: "2.0"
+info:
+  description: "コードの生成テスト用"
+  version: "1.0.0"
+  title: "Code Generator"
+host: "localhost:80"
+basePath: "/v2"
+schemes:
+- "http"
+paths:
+  /:
+    get:
+      summary: "Generate code"
+      description: "Generate code with parameters"
+      operationId: "generate"
+      produces:
+      - "application/text"
+      parameters:
+      - name: "t"
+        in: "query"
+        description: "トポロジの設定"
+        required: true
+        type: "string"
+      - name: "g"
+        in: "query"
+        description: "生成器の設定"
+        required: true
+        type: "string"
+      - name: "s"
+        in: "query"
+        description: "生成開始するノードのID"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            type: "string"
+        "400":
+          description: "Invalid operation"

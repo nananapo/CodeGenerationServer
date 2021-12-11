@@ -109,7 +109,7 @@ internal static class Sample
                     Type = "Value<T>",
                     Args = new Dictionary<string, string>
                     {
-                        { "Value" , "2" }
+                        { "Value" , "4" }
                     }
                 }
             },
