@@ -11,9 +11,11 @@ internal static class Program
 {
     public static void Main(string[] args)
     {
-
-        System.IO.File.WriteAllText("sample.yaml",JsonSerializer.Serialize(GeneratorSetting.Sample));
+        /*
+        File.WriteAllText("sample_gen.json", JsonSerializer.Serialize(Sample.GeneratorSetting));
+        File.WriteAllText("sample_top.json", JsonSerializer.Serialize(Sample.GraphTopologySetting));
         Environment.Exit(0);
+        */
 
         Console.WriteLine("Starting server...");
 
@@ -98,11 +100,11 @@ internal static class Program
             {
                 topologyJson = request.QueryString[i];
             }
-            else if(key == "g")
+            else if (key == "g")
             {
                 generatorSettingJson = request.QueryString[i];
             }
-            else if(key == "s")
+            else if (key == "s")
             {
                 startGraphId = request.QueryString[i];
             }
@@ -151,18 +153,18 @@ internal static class Program
         var sw2 = Stopwatch.StartNew();
 
         var connector = new NodeConnector();
-        var graphs = new Dictionary<string,AutoGraph>();
-        
+        var graphs = new Dictionary<string, AutoGraph>();
+
         //グラフを生成する
-        foreach(var (id, setting) in topology.Graphs)
+        foreach (var (id, setting) in topology.Graphs)
         {
-            var graph = generatorSetting.CreateGraph(id,setting);
+            var graph = generatorSetting.CreateGraph(id, setting);
             if (graph != null)
             {
                 graphs[id] = graph;
             }
-            else 
-            { 
+            else
+            {
                 //グラフ生成でエラー
                 sw.Stop();
                 sw2.Stop();
@@ -191,9 +193,9 @@ internal static class Program
         }
 
         //ノードをつなぐ
-        foreach(var setting in topology.Connections)
+        foreach (var setting in topology.Connections)
         {
-            if(GraphTopologySetting.TryParseConnection(setting,out var node1,out var node2))
+            if (GraphTopologySetting.TryParseConnection(setting, out var node1, out var node2))
             {
                 connector.ConnectNode(node1.ToNode(graphs[node1.GraphId]), node2.ToNode(graphs[node2.GraphId]));
             }
