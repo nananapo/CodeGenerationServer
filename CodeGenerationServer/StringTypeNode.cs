@@ -11,7 +11,7 @@ public class StringTypeNode : Node
 
     public readonly IList<string> InItemTypes;
 
-    public StringTypeNode(IGraph graph,string name, string outItemType)
+    public StringTypeNode(IGraph graph, string name, string outItemType)
     {
         Graph = graph;
         Name = name;
@@ -29,16 +29,23 @@ public class StringTypeNode : Node
 
     public override bool CanAttach(INodeConnector connector, INode onode)
     {
-        if(onode is StringTypeNode node)
+        if (onode is StringTypeNode node)
         {
-            if(node.IsInNode == IsInNode)
+            if (node.IsInNode == IsInNode)
             {
                 return false;
             }
 
             if (IsInNode)
             {
-                return InItemTypes.Contains(node.OutItemType);
+                if (InItemTypes.Contains(node.OutItemType))
+                {
+                    return !connector.TryGetAnotherNode(this, out var _);
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {

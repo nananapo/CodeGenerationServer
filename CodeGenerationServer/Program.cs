@@ -7,6 +7,11 @@ using System.Text.Json;
 
 #nullable disable
 
+//TODO
+// 変数名固定
+// シンタックスハイライト
+// 
+
 internal static class Program
 {
     public static void Main(string[] args)
@@ -194,7 +199,20 @@ internal static class Program
         {
             if (GraphTopologySetting.TryParseConnection(setting, out var node1, out var node2))
             {
-                connector.ConnectNode(node1.ToNode(graphs[node1.GraphId]), node2.ToNode(graphs[node2.GraphId]));
+                if(!connector.ConnectNode(node1.ToNode(graphs[node1.GraphId]), node2.ToNode(graphs[node2.GraphId])))
+                {
+                    sw.Stop();
+                    sw2.Stop();
+                    Console.WriteLine("Error : type mismatch");
+                    Console.WriteLine($"Completed 400 BadRequest in {sw.ElapsedMilliseconds}ms");
+
+                    responseString = $"Failed to connect node.\nNode[{node1.GraphId}][{node1.NodeType}][{node1.Index}]\nNode[{node2.GraphId}][{node2.NodeType}][{node2.Index}]";
+                    buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+                    response.ContentLength64 = buffer.Length;
+                    await outputStream.WriteAsync(buffer, 0, buffer.Length);
+                    outputStream.Close();
+                    return;
+                }
             }
         }
 

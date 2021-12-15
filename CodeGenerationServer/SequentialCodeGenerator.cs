@@ -47,7 +47,10 @@ internal class SequentialCodeGenerator
             //Outにつながっているか確認する
             if (!connector.TryGetAnotherNode(node, out StringTypeNode another))
             {
-                return "";
+                //TODO エラーレベルによって処理を切り替える
+                before += _setting.Comment($"node[{graph.Id}][{node.Name}] is not connected and doesn't have default value.");
+                inVariables.Add($"NOT_IMPLEMENTED");
+                continue;
             }
 
             var hashKey = another.GetHashCode();
@@ -60,7 +63,9 @@ internal class SequentialCodeGenerator
 
                 if (!variables.ContainsKey(hashKey))
                 {
-                    return "";
+                    before += _setting.Comment($"failed to resolve dependency. ({another.Name})");
+                    //TODO エラーレベルによって処理を切り替える
+                    variables[hashKey] = $"NOT_IMPLEMENTED";
                 }
             }
 
