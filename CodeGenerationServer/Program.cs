@@ -73,6 +73,7 @@ internal static class Program
                 Stream output = response.OutputStream;
 
                 response.Headers.Add("Access-Control-Allow-Origin", "*");
+                response.Headers.Add("Access-Control-Allow-Headers", "*");
                 response.Headers.Add("Access-Control-Allow-Methods", "POST, GET");
 
                 Listen(request, output, response);
@@ -91,65 +92,54 @@ internal static class Program
         //時間を計測する
         var sw = Stopwatch.StartNew();
 
-        //設定をパラメータから取得する
-        string topologyJson = null;
-        string generatorSettingJson = null;
-        string startGraphId = null;
-
-        for (int i = 0; i < request.QueryString.Count; i++)
-        {
-            var key = request.QueryString.GetKey(i);
-            if (key == "t")
-            {
-                topologyJson = request.QueryString[i];
-            }
-            else if (key == "g")
-            {
-                generatorSettingJson = request.QueryString[i];
-            }
-            else if (key == "s")
-            {
-                startGraphId = request.QueryString[i];
-            }
-        }
-
         // Construct a response.
         string responseString = "";
         byte[] buffer;
 
-        if (topologyJson == null || generatorSettingJson == null || startGraphId == null)
-        {
-            sw.Stop();
-            Console.WriteLine($"Completed 400 BadRequest in {sw.ElapsedMilliseconds}ms");
-
-            responseString = "One or more parameters are missing.";
-            buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-            response.ContentLength64 = buffer.Length;
-            await outputStream.WriteAsync(buffer, 0, buffer.Length);
-            outputStream.Close();
-            return;
-        }
-
         //設定をデシリアライズする
         GraphTopologySetting topology = null;
         GeneratorSetting generatorSetting = null;
+        string startGraphId = null;
 
         try
         {
-            topology = JsonSerializer.Deserialize<GraphTopologySetting>(topologyJson);
-            generatorSetting = JsonSerializer.Deserialize<GeneratorSetting>(generatorSettingJson);
+            var body = request.InputStream;
+            var encoding = request.ContentEncoding;
+            var reader = new StreamReader(body, encoding);
+
+            Console.WriteLine("Start of post:");
+            string post = reader.ReadToEnd();
+            Console.WriteLine(post);
+            Console.WriteLine("End of post");
+            body.Close();
+            reader.Close();
+
+            var data = JsonSerializer.Deserialize<PostPack>(post);
+
+            topology = data.GraphTopologySetting;
+            generatorSetting = data.GeneratorSetting;
+            startGraphId = data.StartGraphId;
+
+            if (topology == null || 
+                generatorSetting == null ||
+                startGraphId == null)
+            {
+                throw new Exception();
+            }
         }
         catch (Exception)
         {
             //パースでエラー
             sw.Stop();
+            Console.WriteLine("Error : parse");
             Console.WriteLine($"Completed 400 BadRequest in {sw.ElapsedMilliseconds}ms");
 
-            responseString = "ParseError";
+            responseString = "Parse Error";
             buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
             response.ContentLength64 = buffer.Length;
             await outputStream.WriteAsync(buffer, 0, buffer.Length);
             outputStream.Close();
+            return;
         }
 
         //設定からグラフを読み込む
@@ -171,6 +161,7 @@ internal static class Program
                 //グラフ生成でエラー
                 sw.Stop();
                 sw2.Stop();
+                Console.WriteLine("Error : graph generation");
                 Console.WriteLine($"Completed 400 BadRequest in {sw.ElapsedMilliseconds}ms");
 
                 responseString = $"Failed to Instantiate Graph({id})";
@@ -178,6 +169,7 @@ internal static class Program
                 response.ContentLength64 = buffer.Length;
                 await outputStream.WriteAsync(buffer, 0, buffer.Length);
                 outputStream.Close();
+                return;
             }
         }
 
@@ -186,6 +178,7 @@ internal static class Program
         {
             sw.Stop();
             sw2.Stop();
+            Console.WriteLine("Error : first graph");
             Console.WriteLine($"Completed 400 BadRequest in {sw.ElapsedMilliseconds}ms");
 
             responseString = $"StartGraph({startGraphId}) is not Found";
@@ -193,6 +186,7 @@ internal static class Program
             response.ContentLength64 = buffer.Length;
             await outputStream.WriteAsync(buffer, 0, buffer.Length);
             outputStream.Close();
+            return;
         }
 
         //ノードをつなぐ
@@ -222,5 +216,6 @@ internal static class Program
         response.ContentLength64 = buffer.Length;
         await outputStream.WriteAsync(buffer, 0, buffer.Length);
         outputStream.Close();
+        return;
     }
 }

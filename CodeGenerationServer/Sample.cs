@@ -23,6 +23,7 @@ internal static class Sample
                     InItem = new Dictionary<string, string>(),
                     OutItem = new Dictionary<string, string>(),
                     Args = new List<string>(),
+                    InProcessNode = false,
                     OutProcessNodeCount = 1
                 }
             },
@@ -38,6 +39,7 @@ internal static class Sample
                     {
                         "value"
                     },
+                    InProcessNode = false,
                     OutProcessNodeCount=1
                 }
             },
@@ -54,6 +56,7 @@ internal static class Sample
                         { "Result","int" }
                     },
                     Args=new List<string>(),
+                    InProcessNode = true,
                     OutProcessNodeCount = 1
                 }
             },
@@ -66,6 +69,7 @@ internal static class Sample
                     },
                     OutItem = new Dictionary<string, string>(),
                     Args=new List<string>(),
+                    InProcessNode = true,
                     OutProcessNodeCount=1
                 }
             }

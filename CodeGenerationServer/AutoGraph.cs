@@ -24,15 +24,16 @@ public class AutoGraph : IGraph
 
     public event EventHandler<GraphStatusEventArgs> OnStatusChanged;
 
-    public AutoGraph(string graphType,string graphId,IDictionary<string,string> inItemTypes, IDictionary<string,string> outItemTypes,int outProcessNodeCounts,IList<string> args)
+    public AutoGraph(string graphType,string graphId,IDictionary<string,string> inItemTypes, IDictionary<string,string> outItemTypes,bool createInProcessNode,int outProcessNodeCounts,IList<string> args)
     {
         Id = graphId;
         GraphName = graphType;
 
-        InProcessNodes = new List<InProcessNode>
+        InProcessNodes = new List<InProcessNode>();
+        if (createInProcessNode)
         {
-            new InProcessNode(this)
-        };
+            InProcessNodes.Add(new InProcessNode(this));
+        }
 
         OutProcessNodes = new List<OutProcessNode>();
         for(int i = 0;i < outProcessNodeCounts; i++)

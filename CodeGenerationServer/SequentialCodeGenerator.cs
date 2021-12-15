@@ -50,14 +50,21 @@ internal class SequentialCodeGenerator
                 return "";
             }
 
+            var hashKey = another.GetHashCode();
+
             //まだ処理されていない(Processがつながっていないであろうノード)
-            if (!variables.ContainsKey(another.GetHashCode()))
+            if (!variables.ContainsKey(hashKey))
             {
                 //TODO Processチェックすべき
                 before += Run((AutoGraph)another.Graph, connector, variables, false);
+
+                if (!variables.ContainsKey(hashKey))
+                {
+                    return "";
+                }
             }
 
-            inVariables.Add(variables[another.GetHashCode()]);
+            inVariables.Add(variables[hashKey]);
         }
 
         //inVariablesの変数を登録する

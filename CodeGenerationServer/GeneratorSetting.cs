@@ -88,7 +88,14 @@ class GeneratorSetting
             format = format.Replace("{" + key + "}", "{" + i + "}");
         }
 
-        return String.Format(format, args: list.ToArray<object>());
+        try
+        {
+            var formatted = String.Format(format, args: list.ToArray<object>());
+            return formatted;
+        }catch (Exception)
+        {
+            return "##ERROR##";
+        }
     }
 
     private void LoadSetting()
@@ -108,15 +115,19 @@ class GeneratorSetting
                 .Replace("{random}", "{3}")
                 .Replace("{RANDOM}", "{4}")
                 .Replace("{count}", "{5}");
-        //TODO 間違った書き方をすると、String.Formatでエラーがでてしまう
-
-        
     }
 
     public string Comment(string str)
     {
         LoadSetting();
-        return string.Format(_commentFormat, str);
+        try
+        {
+            return string.Format(_commentFormat, str);
+        }
+        catch (Exception)
+        {
+            return "##ERROR##";
+        }
     }
 
     public string AddIndent(string str)
@@ -138,7 +149,14 @@ class GeneratorSetting
         {
             var rand = "abcdefghijklmnopqrstuvwxyz0123456789".Random(5);
             var RAND = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".Random(5);
-            return string.Format(_variableFormat, lower, camel, upper, rand, RAND, count);
+            try
+            {
+                return string.Format(_variableFormat, lower, camel, upper, rand, RAND, count);
+            }
+            catch (Exception)
+            {
+                return "##ERROR##";
+            }
         };
     }
 
@@ -176,7 +194,7 @@ class GeneratorSetting
         }
 
         var gen = Graphs[setting.Type];
-        return new AutoGraph(setting.Type,id,gen.InItem,gen.OutItem,gen.OutProcessNodeCount,setting.Args.Values.ToArray());
+        return new AutoGraph(setting.Type,id,gen.InItem,gen.OutItem,gen.InProcessNode,gen.OutProcessNodeCount,setting.Args.Values.ToArray());
     }
 
 }

@@ -21,6 +21,11 @@ internal class GraphDefinition
     public Dictionary<string,string> OutItem { get; set; }
 
     /// <summary>
+    /// InProcessを持つかどうか
+    /// </summary>
+    public bool InProcessNode { get; set; }
+
+    /// <summary>
     /// OutProcessNodeの数を指定する
     /// デフォルト値は1
     /// </summary>
