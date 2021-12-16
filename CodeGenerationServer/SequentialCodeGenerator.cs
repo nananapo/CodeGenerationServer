@@ -1,6 +1,5 @@
 ﻿namespace GraphConnectEngine.CodeGen;
 
-using GraphConnectEngine.Graphs.Event;
 using GraphConnectEngine.Nodes;
 
 internal class SequentialCodeGenerator
@@ -18,11 +17,19 @@ internal class SequentialCodeGenerator
     /// <summary>
     /// 生成する
     /// </summary>
-    /// <param name="updater"></param>
+    /// <param name="startGraph"></param>
+    /// <param name="connector"></param>
+    /// <param name="additionalFormatter"></param>
     /// <returns></returns>
-    public string Generate(AutoGraph startGraph,INodeConnector connector)
+    public string Generate(AutoGraph startGraph,INodeConnector connector,Func<IGraph,string,string> additionalFormatter = null)
     {
-        return Run(startGraph, connector, new Dictionary<int, string>());
+
+        if (additionalFormatter == null)
+        {
+            additionalFormatter = (_,s) => s;
+        }
+
+        return Run(startGraph, connector, new Dictionary<int, string>(), additionalFormatter);
     }
 
     /// <summary>
@@ -32,9 +39,9 @@ internal class SequentialCodeGenerator
     /// <param name="connector"></param>
     /// <param name="variables"></param>
     /// <param name="moveNext"></param>
-    /// <returns></returns>
+    /// <returns>プログラム , XML</returns>
     /// <exception cref="Exception"></exception>
-    string Run(AutoGraph graph, INodeConnector connector, Dictionary<int, string> variables, bool moveNext = true)
+    string Run(AutoGraph graph, INodeConnector connector, Dictionary<int, string> variables, Func<IGraph, string,string> additionalFormatter,bool moveNext = true)
     {
         var before = "";
         var after = "";
@@ -59,7 +66,7 @@ internal class SequentialCodeGenerator
             if (!variables.ContainsKey(hashKey))
             {
                 //TODO Processチェックすべき
-                before += Run((AutoGraph)another.Graph, connector, variables, false);
+                before += Run((AutoGraph)another.Graph, connector, variables, additionalFormatter,false);
 
                 if (!variables.ContainsKey(hashKey))
                 {
@@ -99,13 +106,14 @@ internal class SequentialCodeGenerator
                 {
                     foreach (var another in others)
                     {
-                        after += Run((AutoGraph)another.Graph, connector,variables);
+                        after += Run((AutoGraph)another.Graph, connector,variables, additionalFormatter);
                     }
                 }
             }
         }
 
-        return _setting.Format(graph.GraphName, inVariables, outVariables, graph.Args, before, after);
+        var result =  _setting.Format(graph.GraphName, inVariables, outVariables, graph.Args, before, after);
+        return additionalFormatter(graph,result);
     }
 
     private string CreateVariable(string name)

@@ -3,6 +3,7 @@
 using GraphConnectEngine.Nodes;
 using System.Diagnostics;
 using System.Net;
+using System.Security;
 using System.Text.Json;
 
 #nullable disable
@@ -64,7 +65,7 @@ internal static class Program
                 if (request.Url == null)
                 {
                     var res = context.Response;
-                    res.StatusCode = 400;
+                    res.StatusCode = 404;
                     res.Close();
 
                     Console.WriteLine($"Completed 404 NotFound");
@@ -139,9 +140,10 @@ internal static class Program
             Console.WriteLine("Error : parse");
             Console.WriteLine($"Completed 400 BadRequest in {sw.ElapsedMilliseconds}ms");
 
-            responseString = "Parse Error";
+            responseString = "400 BadRequest (Parse Error)";
             buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
             response.ContentLength64 = buffer.Length;
+            response.StatusCode = (int)HttpStatusCode.BadRequest;
             await outputStream.WriteAsync(buffer, 0, buffer.Length);
             outputStream.Close();
             return;
@@ -172,6 +174,7 @@ internal static class Program
                 responseString = $"Failed to Instantiate Graph({id})";
                 buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
                 response.ContentLength64 = buffer.Length;
+                response.StatusCode = (int)HttpStatusCode.BadRequest;
                 await outputStream.WriteAsync(buffer, 0, buffer.Length);
                 outputStream.Close();
                 return;
@@ -186,9 +189,10 @@ internal static class Program
             Console.WriteLine("Error : first graph");
             Console.WriteLine($"Completed 400 BadRequest in {sw.ElapsedMilliseconds}ms");
 
-            responseString = $"StartGraph({startGraphId}) is not Found";
+            responseString = $"StartGraph({startGraphId}) not Found";
             buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
             response.ContentLength64 = buffer.Length;
+            response.StatusCode = (int)HttpStatusCode.BadRequest;
             await outputStream.WriteAsync(buffer, 0, buffer.Length);
             outputStream.Close();
             return;
@@ -209,6 +213,7 @@ internal static class Program
                     responseString = $"Failed to connect node.\nNode[{node1.GraphId}][{node1.NodeType}][{node1.Index}]\nNode[{node2.GraphId}][{node2.NodeType}][{node2.Index}]";
                     buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
                     response.ContentLength64 = buffer.Length;
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
                     await outputStream.WriteAsync(buffer, 0, buffer.Length);
                     outputStream.Close();
                     return;
@@ -221,8 +226,21 @@ internal static class Program
         //生成する
         var sw3 = Stopwatch.StartNew();
 
-        var gen = new SequentialCodeGenerator(generatorSetting);
-        responseString = gen.Generate(graphs[startGraphId], connector);
+        //TODO 二回生成してるのをどうにかする
+        var generator = new SequentialCodeGenerator(generatorSetting);
+        var code = generator.Generate(graphs[startGraphId], connector);
+        var xml = generator.Generate(graphs[startGraphId], connector, (graph,str) =>
+          {
+              var escapedId = SecurityElement.Escape(graph.Id);
+              return $"<GraphSyntaxHighLight {escapedId}>{str}</GraphSyntaxHighLight>";
+          });
+
+        var result = new ResultPack
+        {
+            GeneratedCode = code,
+            SyntaxHighlight = xml
+        };
+        responseString = JsonSerializer.Serialize(result);
 
         sw3.Stop();
 
@@ -232,6 +250,7 @@ internal static class Program
 
         buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
         response.ContentLength64 = buffer.Length;
+        response.StatusCode = (int)HttpStatusCode.OK;
         await outputStream.WriteAsync(buffer, 0, buffer.Length);
         outputStream.Close();
         return;

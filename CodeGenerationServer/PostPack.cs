@@ -8,3 +8,10 @@ internal class PostPack
 
     public string StartGraphId { get; set; }
 }
+
+internal class ResultPack
+{
+    public string GeneratedCode { get; set; }
+
+    public string SyntaxHighlight { get; set; }
+}
