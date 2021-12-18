@@ -1,6 +1,5 @@
-﻿using GraphConnectEngine.Nodes;
+﻿namespace GraphConnectEngine.CodeGen;
 
-namespace GraphConnectEngine.CodeGen;
 public class StringTypeNode : Node
 {
     public readonly string Name;

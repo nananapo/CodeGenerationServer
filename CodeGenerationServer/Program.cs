@@ -1,11 +1,12 @@
-﻿namespace GraphConnectEngine.CodeGen;
+﻿
+global using GraphConnectEngine.Nodes;
 
-using GraphConnectEngine.Nodes;
 using System.Diagnostics;
 using System.Net;
 using System.Security;
 using System.Text.Json;
 
+namespace GraphConnectEngine.CodeGen;
 #nullable disable
 
 //TODO

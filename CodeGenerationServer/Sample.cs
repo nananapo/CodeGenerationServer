@@ -1,5 +1,4 @@
-﻿
-using GraphConnectEngine.CodeGen;
+﻿namespace GraphConnectEngine.CodeGen;
 
 internal static class Sample
 {

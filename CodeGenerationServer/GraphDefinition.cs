@@ -1,4 +1,6 @@
-﻿#pragma warning disable CS8618
+﻿namespace GraphConnectEngine.CodeGen;
+
+#pragma warning disable CS8618
 /// <summary>
 ///
 // TODO 名前で型ヒントを与えたい

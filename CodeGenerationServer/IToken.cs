@@ -1,15 +1,13 @@
-﻿namespace GraphConnectEngine.CodeGen
+﻿namespace GraphConnectEngine.CodeGen;
+internal interface IToken
 {
-    internal interface IToken
+    public static IToken operator +(IToken token1, IToken token2)
     {
-        public static IToken operator +(IToken token1, IToken token2)
-        {
-            return token1;
-        }
+        return token1;
+    }
 
-        public static IToken operator +(IToken token,string str)
-        {
-            return token;
-        }
+    public static IToken operator +(IToken token, string str)
+    {
+        return token;
     }
 }

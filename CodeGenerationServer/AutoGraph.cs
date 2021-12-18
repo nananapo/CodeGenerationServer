@@ -1,6 +1,4 @@
-﻿using GraphConnectEngine.Nodes;
-
-namespace GraphConnectEngine.CodeGen;
+﻿namespace GraphConnectEngine.CodeGen;
 
 public class AutoGraph : IGraph
 {

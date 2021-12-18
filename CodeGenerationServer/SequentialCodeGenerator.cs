@@ -1,7 +1,5 @@
 ﻿namespace GraphConnectEngine.CodeGen;
 
-using GraphConnectEngine.Nodes;
-
 internal class SequentialCodeGenerator
 {
 
