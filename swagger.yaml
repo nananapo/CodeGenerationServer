@@ -18,12 +18,12 @@ paths:
       parameters:
       - name: "t"
         in: "query"
-        description: "トポロジの設定"
+        description: "トポロジの設定(JSON)"
         required: true
         type: "string"
       - name: "g"
         in: "query"
-        description: "生成器の設定"
+        description: "生成器の設定(JSON)"
         required: true
         type: "string"
       - name: "s"
