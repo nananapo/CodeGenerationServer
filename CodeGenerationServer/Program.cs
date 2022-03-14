@@ -37,7 +37,7 @@ internal static class Program
 
         // Create a listener.
         var httpListener = new HttpListener();
-        httpListener.Prefixes.Add($@"http://localhost:80/");
+        httpListener.Prefixes.Add($@"http://+:19136/");
 
         //open
         try
@@ -63,25 +63,34 @@ internal static class Program
 
                 Console.WriteLine($"Access from {context.Request.RemoteEndPoint} to {request.RawUrl}");
 
-                if (request.Url == null)
-                {
-                    var res = context.Response;
-                    res.StatusCode = 404;
-                    res.Close();
-
-                    Console.WriteLine($"Completed 404 NotFound");
-                    continue;
-                }
-
-                var path = request.Url.LocalPath;
-
                 // Obtain a response object.
                 var response = context.Response;
                 Stream output = response.OutputStream;
 
-                response.Headers.Add("Access-Control-Allow-Origin", "*");
-                response.Headers.Add("Access-Control-Allow-Headers", "*");
-                response.Headers.Add("Access-Control-Allow-Methods", "POST, GET");
+                response.AppendHeader("Access-Control-Allow-Origin", "*");
+                response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, access-control-allow-headers,access-control-allow-methods,access-control-allow-origin,content-type");
+                response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
+                response.AddHeader("Access-Control-Max-Age", "128");
+
+                if (request.HttpMethod == "OPTIONS")
+                {
+                    var buffer = System.Text.Encoding.UTF8.GetBytes("Preflight");
+                    response.ContentLength64 = buffer.Length;
+                    response.StatusCode = (int)HttpStatusCode.OK;
+                    await output.WriteAsync(buffer, 0, buffer.Length);
+                    output.Close();
+                    response.Close();
+                    continue;
+                }
+
+                if (request.Url == null)
+                {
+                    response.StatusCode = 404;
+                    response.Close();
+
+                    Console.WriteLine($"Completed 404 NotFound");
+                    continue;
+                }
 
                 Listen(request, output, response);
             }
